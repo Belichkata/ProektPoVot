@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: music-map-backend
+  namespace: music-map
+  labels:
+    app.kubernetes.io/name: music-map
+    app.kubernetes.io/component: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: music-map
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: music-map
+        app.kubernetes.io/component: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "5000"
+    spec:
+      containers:
+        - name: backend
+          image: docker.io/DOCKERHUB_USERNAME/music-map-backend:IMAGE_TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "5000"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: music-map-backend
+  namespace: music-map
+  labels:
+    app.kubernetes.io/name: music-map
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: music-map
+    app.kubernetes.io/component: backend
+  ports:
+    - name: http
+      port: 5000
+      targetPort: http

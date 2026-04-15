@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: music-map-backend
+  namespace: music-map
+  labels:
+    app.kubernetes.io/name: music-map
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: music-map
+      app.kubernetes.io/component: backend
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s

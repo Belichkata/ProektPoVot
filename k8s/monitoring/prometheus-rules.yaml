@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: music-map-alerts
+  namespace: music-map
+  labels:
+    app.kubernetes.io/name: music-map
+spec:
+  groups:
+    - name: music-map.rules
+      rules:
+        - alert: MusicMapBackendDown
+          expr: up{service="music-map-backend"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: Music Map backend is down
+            description: Prometheus cannot scrape the backend metrics endpoint.
+        - alert: MusicMapSlowRequests
+          expr: music_map_http_request_duration_ms_average > 1000
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Music Map backend is responding slowly
+            description: Average backend request duration is above 1000 ms.

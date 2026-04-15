@@ -1,0 +1,2 @@
+dockerhub_username = "your-dockerhub-username"
+alert_webhook_url  = "https://example.com/replace-with-real-webhook"

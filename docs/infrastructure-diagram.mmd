@@ -1,0 +1,24 @@
+flowchart LR
+  dev[Developer] --> git[GitHub Repository]
+  git --> hook[Pre-commit Hooks]
+  git --> gha[GitHub Actions CI/CD]
+
+  gha --> tests[Backend + Frontend Tests]
+  gha --> scan[Secret Scan]
+  gha --> build[Docker Build]
+  build --> hub[Docker Hub]
+  gha --> notify[Webhook Notifications]
+
+  gha --> k8s[Kubernetes Cluster]
+  tf[Terraform IaC] --> k8s
+  k8s --> be[Backend API Pods]
+  k8s --> fe[Frontend Pods]
+  fe --> user[Browser]
+  user --> be
+
+  be --> metrics[/metrics]
+  be --> logs[JSON Logs]
+  metrics --> prom[Prometheus]
+  logs --> kubelogs[Kubernetes Logs]
+  prom --> alerts[Alertmanager]
+  alerts --> notify

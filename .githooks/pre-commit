@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+echo "Running pre-commit checks..."
+
+if git diff --cached --name-only | grep -Ei '(^|/)(\.env|.*secret.*|.*password.*|kubeconfig|.*\.tfvars)$' >/dev/null; then
+  echo "Blocked: staged files look like secrets or local configuration."
+  exit 1
+fi
+
+if git diff --cached --name-only | grep -E '\.(js|json|yml|yaml|md|tf)$' >/dev/null; then
+  if git diff --cached -- . ':!frontend/package-lock.json' ':!backend/package-lock.json' | grep -Ei '(password|passwd|secret|api[_-]?key|token|private key)\s*[:=]\s*["'\''][^"'\'' ]+' >/dev/null; then
+    echo "Blocked: staged diff appears to contain a hard-coded secret."
+    exit 1
+  fi
+fi
+
+(cd backend && npm test)
+(cd frontend && npm test -- --watchAll=false --runInBand)
+
+echo "Pre-commit checks passed."

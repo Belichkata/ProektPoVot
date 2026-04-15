@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: music-map-webhook
+  namespace: music-map
+  labels:
+    app.kubernetes.io/name: music-map
+spec:
+  route:
+    receiver: webhook
+    groupBy:
+      - alertname
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 2h
+  receivers:
+    - name: webhook
+      webhookConfigs:
+        - sendResolved: true
+          urlSecret:
+            name: alert-webhook
+            key: url
