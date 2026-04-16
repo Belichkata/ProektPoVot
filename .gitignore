@@ -13,10 +13,10 @@ npm-debug.log*
 terraform.tfstate
 terraform.tfstate.*
 .terraform/
-.terraform.lock.hcl
 *.tfvars
 kubeconfig*
 secrets.yaml
 *secret*.json
 *secret*.yml
 *secret*.yaml
+tools/

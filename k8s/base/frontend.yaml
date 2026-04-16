@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: docker.io/DOCKERHUB_USERNAME/music-map-frontend:IMAGE_TAG
+          image: docker.io/DOCKERHUB_USERNAME/proekt-po-vot-frontend:IMAGE_TAG
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

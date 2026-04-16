@@ -9,8 +9,9 @@ on:
       - main
 
 env:
-  BACKEND_IMAGE: music-map-backend
-  FRONTEND_IMAGE: music-map-frontend
+  BACKEND_IMAGE: proekt-po-vot-backend
+  FRONTEND_IMAGE: proekt-po-vot-frontend
+
 
 jobs:
   test:
@@ -115,6 +116,7 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           IMAGE_TAG: ${{ github.sha }}
           KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_B64 }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL || secrets.NOTIFICATION_WEBHOOK_URL }}
         run: |
           if [ -z "$KUBE_CONFIG_B64" ]; then
             exit 0
@@ -123,6 +125,21 @@ jobs:
           sed -i "s|DOCKERHUB_USERNAME|$DOCKERHUB_USERNAME|g" /tmp/music-map-k8s/*.yaml
           sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" /tmp/music-map-k8s/*.yaml
           kubectl apply -f /tmp/music-map-k8s
+
+          if [ -n "$ALERT_WEBHOOK_URL" ]; then
+            kubectl create secret generic alert-webhook \
+              -n music-map \
+              --from-literal=url="$ALERT_WEBHOOK_URL" \
+              --dry-run=client \
+              -o yaml | kubectl apply -f -
+          fi
+
+          if kubectl get crd servicemonitors.monitoring.coreos.com prometheusrules.monitoring.coreos.com alertmanagerconfigs.monitoring.coreos.com >/dev/null 2>&1; then
+            kubectl apply -f k8s/monitoring
+          else
+            echo "Prometheus Operator CRDs are not installed. Skipping monitoring manifests."
+          fi
+
           kubectl rollout status deployment/music-map-backend -n music-map --timeout=120s
           kubectl rollout status deployment/music-map-frontend -n music-map --timeout=120s
 

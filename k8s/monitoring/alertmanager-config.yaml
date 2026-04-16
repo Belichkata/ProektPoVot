@@ -5,6 +5,7 @@ metadata:
   namespace: music-map
   labels:
     app.kubernetes.io/name: music-map
+    release: monitoring
 spec:
   route:
     receiver: webhook

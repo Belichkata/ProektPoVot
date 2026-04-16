@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: docker.io/DOCKERHUB_USERNAME/music-map-backend:IMAGE_TAG
+          image: docker.io/DOCKERHUB_USERNAME/proekt-po-vot-backend:IMAGE_TAG
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
